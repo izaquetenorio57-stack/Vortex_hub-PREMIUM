@@ -1,0 +1,63 @@
+-- Trolagem de Ban Mensagem haha
+local player = game:GetService("Players").LocalPlayer
+
+local fakeBanMsg = [[
+Sua conta foi banida permanentemente do Roblox.
+
+Motivo do Banimento: Violação dos Termos de Serviço GERAIS.
+Nota do Moderador: O nosso sistema Anti-Cheat detectou anomalias no seu cliente (Uso de software malicioso/Executores).
+
+Sua conta foi suspensa permanentemente e não será possível recuperá-la.
+Para apelar da sua suspensão, visite a página de Suporte do Roblox.
+
+[Código de Erro do Roblox: 267]
+]]
+
+-- Tela preta de suspense rápida pra assustar antes de kikar
+local gui = Instance.new("ScreenGui")
+gui.Name = "NotificaFakeBan"
+gui.IgnoreGuiInset = true
+gui.DisplayOrder = 99999
+-- Tenta colocar na CoreGui primeiro pra proteção anti-deletar
+local success = pcall(function() gui.Parent = game:GetService("CoreGui") end)
+if not success then
+    pcall(function() gui.Parent = player:WaitForChild("PlayerGui") end)
+end
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(1, 0, 1, 0)
+frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+frame.Parent = gui
+
+local txt = Instance.new("TextLabel")
+txt.Size = UDim2.new(1, 0, 1, 0)
+txt.BackgroundTransparency = 1
+txt.TextColor3 = Color3.fromRGB(255, 50, 50)
+txt.Font = Enum.Font.GothamBlack
+txt.TextSize = 28
+txt.Text = "[SISTEMA ROBLOX]: ANALISANDO CONTA..."
+txt.Parent = frame
+
+-- Efeito sonoro aterrorizante
+local sound = Instance.new("Sound")
+sound.SoundId = "rbxassetid://1536752762" -- Som de notificação padrão/erro (ou sirene, se preferir outro ID)
+sound.Volume = 2
+sound.Parent = game.Workspace
+sound:Play()
+
+task.spawn(function()
+    task.wait(1.5)
+    txt.Text = "ANOMALIA DETECTADA! APLICANDO BANIMENTO IP..."
+    
+    local sound2 = Instance.new("Sound")
+    sound2.SoundId = "rbxassetid://550209561" -- Glitch/Erro sound
+    sound2.Volume = 3
+    sound2.Parent = game.Workspace
+    sound2:Play()
+    
+    task.wait(1)
+    gui:Destroy()
+    
+    -- Finalmente, Kika o jogador com a mensagem falsa de ban permanente
+    player:Kick(fakeBanMsg)
+end)
