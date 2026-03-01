@@ -1,21 +1,9 @@
--- Trolagem de Ban Mensagem haha
+-- Trolagem de Aviso (Warning)
 local player = game:GetService("Players").LocalPlayer
 
-local fakeBanMsg = [[
-Sua conta foi banida permanentemente do Roblox.
-
-Motivo do Banimento: Violação dos Termos de Serviço GERAIS.
-Nota do Moderador: O nosso sistema Anti-Cheat detectou anomalias no seu cliente (Uso de software malicioso/Executores).
-
-Sua conta foi suspensa permanentemente e não será possível recuperá-la.
-Para apelar da sua suspensão, visite a página de Suporte do Roblox.
-
-[Código de Erro do Roblox: 267]
-]]
-
--- Tela preta de suspense rápida pra assustar antes de kikar
+-- GUI de aviso idêntica ao alerta de moderação do Roblox
 local gui = Instance.new("ScreenGui")
-gui.Name = "NotificaFakeBan"
+gui.Name = "RobloxModerationWarning"
 gui.IgnoreGuiInset = true
 gui.DisplayOrder = 99999
 -- Tenta colocar na CoreGui primeiro pra proteção anti-deletar
@@ -24,40 +12,91 @@ if not success then
     pcall(function() gui.Parent = player:WaitForChild("PlayerGui") end)
 end
 
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(1, 0, 1, 0)
-frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-frame.Parent = gui
+-- Fundo escurecido semi-transparente
+local bg = Instance.new("Frame")
+bg.Size = UDim2.new(1, 0, 1, 0)
+bg.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+bg.BackgroundTransparency = 0.4
+bg.Active = true -- Bloqueia cliques fora
+bg.Parent = gui
 
-local txt = Instance.new("TextLabel")
-txt.Size = UDim2.new(1, 0, 1, 0)
-txt.BackgroundTransparency = 1
-txt.TextColor3 = Color3.fromRGB(255, 50, 50)
-txt.Font = Enum.Font.GothamBlack
-txt.TextSize = 28
-txt.Text = "[SISTEMA ROBLOX]: ANALISANDO CONTA..."
-txt.Parent = frame
+-- Caixa principal do aviso
+local warningBox = Instance.new("Frame")
+warningBox.Size = UDim2.new(0, 500, 0, 320)
+warningBox.Position = UDim2.new(0.5, -250, 0.5, -160)
+warningBox.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+warningBox.BorderSizePixel = 0
+warningBox.Parent = bg
 
--- Efeito sonoro aterrorizante
+local corner = Instance.new("UICorner", warningBox)
+corner.CornerRadius = UDim.new(0, 8)
+
+local stroke = Instance.new("UIStroke", warningBox)
+stroke.Color = Color3.fromRGB(255, 60, 60)
+stroke.Thickness = 2
+stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+-- Título
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 50)
+title.Position = UDim2.new(0, 0, 0, 10)
+title.BackgroundTransparency = 1
+title.TextColor3 = Color3.fromRGB(255, 70, 70)
+title.Font = Enum.Font.GothamBlack
+title.TextSize = 22
+title.Text = "⚠️ AVISO DE MODERAÇÃO DO ROBLOX ⚠️"
+title.Parent = warningBox
+
+local line = Instance.new("Frame")
+line.Size = UDim2.new(1, -40, 0, 1)
+line.Position = UDim2.new(0, 20, 0, 65)
+line.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+line.BorderSizePixel = 0
+line.Parent = warningBox
+
+-- Texto da Mensagem
+local msg = Instance.new("TextLabel")
+msg.Size = UDim2.new(1, -60, 1, -150)
+msg.Position = UDim2.new(0, 30, 0, 85)
+msg.BackgroundTransparency = 1
+msg.TextColor3 = Color3.fromRGB(220, 220, 220)
+msg.Font = Enum.Font.Gotham
+msg.TextSize = 16
+msg.TextXAlignment = Enum.TextXAlignment.Center
+msg.TextYAlignment = Enum.TextYAlignment.Top
+msg.TextWrapped = true
+msg.Text = "Nossa equipe detectou anomalias na sua conta.\nO uso de softwares de terceiros (Executores/Exploits) viola nossos Termos de Serviço.\n\nEste é um último aviso. Se novas infrações forem registradas, sua conta será encerrada permanentemente e seu HWID bloqueado."
+msg.Parent = warningBox
+
+-- Botão de Concordar
+local btn = Instance.new("TextButton")
+btn.Size = UDim2.new(0, 200, 0, 40)
+btn.Position = UDim2.new(0.5, -100, 1, -60)
+btn.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+btn.TextColor3 = Color3.fromRGB(20, 20, 20)
+btn.Font = Enum.Font.GothamBold
+btn.TextSize = 16
+btn.Text = "Eu Concordo"
+btn.Parent = warningBox
+
+local btnCorner = Instance.new("UICorner", btn)
+btnCorner.CornerRadius = UDim.new(0, 6)
+
+-- Efeito sonoro foda de Erro
 local sound = Instance.new("Sound")
-sound.SoundId = "rbxassetid://1536752762" -- Som de notificação padrão/erro (ou sirene, se preferir outro ID)
+sound.SoundId = "rbxassetid://1536752762" -- Som de notificação padrão do roblox de aviso
 sound.Volume = 2
 sound.Parent = game.Workspace
 sound:Play()
 
-task.spawn(function()
-    task.wait(1.5)
-    txt.Text = "ANOMALIA DETECTADA! APLICANDO BANIMENTO IP..."
-    
-    local sound2 = Instance.new("Sound")
-    sound2.SoundId = "rbxassetid://550209561" -- Glitch/Erro sound
-    sound2.Volume = 3
-    sound2.Parent = game.Workspace
-    sound2:Play()
-    
-    task.wait(1)
+-- Lógica para fechar
+btn.MouseButton1Click:Connect(function()
     gui:Destroy()
     
-    -- Finalmente, Kika o jogador com a mensagem falsa de ban permanente
-    player:Kick(fakeBanMsg)
+    -- Notificação extra pequena no canto
+    game.StarterGui:SetCore("SendNotification", {
+        Title = "Sistema Roblox";
+        Text = "Atividade monitorada a partir de agora.";
+        Duration = 5;
+    })
 end)
